@@ -8,7 +8,10 @@ import 'package:ps_app_clone_mvvm/utils/result.dart';
 import 'package:logging/logging.dart';
 
 class ProfileViewModel extends ChangeNotifier {
-  ProfileViewModel({required this.getProfileUseCase, required this.getTrophySummaryUseCase}) {
+  ProfileViewModel({required this.getProfileUseCase, required this.getTrophySummaryUseCase, Profile? profile}) {
+    if (profile != null) {
+      _profile = profile;
+    }
     getProfileCommand = Command0(_getProfile)..execute();
     getTrophySummaryCommand = Command0(getTrophySummary)..execute();
   }
@@ -29,6 +32,10 @@ class ProfileViewModel extends ChangeNotifier {
 
   Future<Result> _getProfile() async {
     try {
+      if (_profile != null) {
+        _log.info('Profile already loaded: ${_profile?.fullName}');
+        return Result.ok(_profile!);
+      }
       final result = await getProfileUseCase();
       // final result = Result.ok(Profile(
       //       id: '8499245957547228232',

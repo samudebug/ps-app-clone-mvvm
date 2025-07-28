@@ -3,6 +3,8 @@ import 'package:ps_app_clone_mvvm/utils/result.dart';
 
 typedef CommandAction0<T> = Future<Result<T>> Function();
 
+typedef CommandAction1<T, A> = Future<Result<T>> Function(A);
+
 abstract class Command<T> extends ChangeNotifier {
   Command();
 
@@ -46,5 +48,15 @@ class Command0<T> extends Command<T> {
 
   Future<void> execute() async {
     await _execute(action);
+  }
+}
+
+class Command1<T, A> extends Command<T> {
+  Command1(this._action);
+
+  final CommandAction1<T, A> _action;
+
+  Future<void> execute(A argument) async {
+    await _execute(() => _action(argument));
   }
 }

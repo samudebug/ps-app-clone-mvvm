@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/game.dart';
+import 'package:ps_app_clone_mvvm/routing/routes.dart';
 import 'package:ps_app_clone_mvvm/ui/core/ui/error_indicator.dart';
 import 'package:ps_app_clone_mvvm/ui/games/view_models/games_view_model.dart';
 import 'package:ps_app_clone_mvvm/ui/games/views/game_list_item.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:go_router/go_router.dart';
 
 class GamesPage extends StatefulWidget {
   const GamesPage({super.key, required this.viewModel});
@@ -60,26 +62,33 @@ class _GamesPageState extends State<GamesPage> {
                   );
                 }
                 return SliverAppBar(
-                  title: Row(
-                    spacing: 8,
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        child: ClipOval(
-                          child: Image.network(
-                            widget.viewModel.profile?.avatarUrl ??
-                                'http://static-resource.np.community.playstation.net/avatar/WWS_A/A2002_l.png',
-                            fit: BoxFit.cover,
-                            width: 50,
-                            height: 50,
+                  title: GestureDetector(
+                    onTap: () => context.push(
+                      Routes.profile,
+                      extra: widget.viewModel.profile,
+                    ),
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        CircleAvatar(
+                          radius: 20,
+                          child: ClipOval(
+                            child: Image.network(
+                              widget.viewModel.profile?.avatarUrl ??
+                                  'http://static-resource.np.community.playstation.net/avatar/WWS_A/A2002_l.png',
+                              fit: BoxFit.cover,
+                              width: 50,
+                              height: 50,
+                            ),
                           ),
                         ),
-                      ),
-                      Text(
-                        widget.viewModel.profile?.fullName ?? 'Samuel Martins',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
+                        Text(
+                          widget.viewModel.profile?.fullName ??
+                              'Samuel Martins',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -91,7 +100,6 @@ class _GamesPageState extends State<GamesPage> {
               title: Text(
                 'Games',
                 style: Theme.of(context).textTheme.displayMedium,
-                
               ),
               floating: true,
               snap: true,
@@ -111,7 +119,8 @@ class _GamesPageState extends State<GamesPage> {
                             game: Game(
                               id: 'loading_$index',
                               name: 'Loading...',
-                              imageUrl: 'https://image.api.playstation.com/vulcan/ap/rnd/202503/2016/b69c06fb108299866057126b0d3a0530bdf96a39d2ce1cb9.png',
+                              imageUrl:
+                                  'https://image.api.playstation.com/vulcan/ap/rnd/202503/2016/b69c06fb108299866057126b0d3a0530bdf96a39d2ce1cb9.png',
                               duration: GameDuration(hours: 0, minutes: 0),
                             ),
                           ),
@@ -135,7 +144,10 @@ class _GamesPageState extends State<GamesPage> {
                     final game = widget.viewModel.games[index];
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: GameListItem(game: game),
+                      child: InkWell(
+                        onTap: () => context.push(Routes.game_details(game.id), extra: game),
+                        child: GameListItem(game: game),
+                      ),
                     );
                   },
                 );
