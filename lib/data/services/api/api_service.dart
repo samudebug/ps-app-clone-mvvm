@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:ps_app_clone_mvvm/core/environment.dart';
 
@@ -8,6 +10,7 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           options.headers['Authorization'] = SSO_TOKEN;
+          options.headers['Accept-Language'] = Platform.localeName.replaceAll('_', '-');
           return handler.next(options);
         }
       )

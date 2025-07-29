@@ -3,6 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:ps_app_clone_mvvm/data/repositories/games/games_repository_remote.dart';
 import 'package:ps_app_clone_mvvm/data/services/api/api_service.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/game.dart';
+import 'package:ps_app_clone_mvvm/domain/models/games/trophy.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/trophy_group.dart';
 import 'package:ps_app_clone_mvvm/utils/result.dart';
 
@@ -146,6 +147,69 @@ void main() {
 
       expect(result, isA<Ok<List<TrophyGroup>>>());
       expect((result as Ok<List<TrophyGroup>>).value, isEmpty);
+    });
+  });
+
+  group('getTrophies', () {
+    final mockTrophiesJson = [
+      {
+        'id': 't1',
+        'name': 'First Trophy',
+        'type': 'bronze',
+        'detail': 'Complete the first level',
+        'icon_url': 'http://example.com/trophy1.png',
+        'is_earned': true,
+        'is_hidden': false,
+        'earned_date': '2023-01-01T00:00:00Z',
+      }
+    ];
+
+    final mockTrophies = [
+      Trophy(
+        id: 't1',
+        name: 'First Trophy',
+        type: TrophyType.bronze,
+        detail: 'Complete the first level',
+        iconUrl: 'http://example.com/trophy1.png',
+        isEarned: true,
+        isHidden: false,
+        earnedDate: DateTime.parse('2023-01-01T00:00:00Z'),
+      ),
+    ];
+
+    test('returns list of trophies on success', () async {
+      when(() => mockApiClient.get('/games/1/trophy_groups/tg1/trophies'))
+          .thenAnswer((_) async => mockTrophiesJson);
+
+      final result = await repository.getTrophies('1', 'tg1');
+
+      expect(result, isA<Result<List<Trophy>>>());
+      expect(result, isA<Ok<List<Trophy>>>());
+      expect((result as Ok<List<Trophy>>).value, mockTrophies);
+    });
+
+    test('returns error result on exception', () async {
+      when(() => mockApiClient.get('/games/1/trophy_groups/tg1/trophies'))
+          .thenThrow(Exception('API error'));
+
+      final result = await repository.getTrophies('1', 'tg1');
+
+      expect(result, isA<Result<List<Trophy>>>());
+      expect(result, isA<Error<List<Trophy>>>());
+      expect((result as Error<List<Trophy>>).error, isA<Exception>());
+    });
+
+    test('TrophyRemote.fromJson parses correctly', () {
+      final trophy = TrophyRemote.fromJson(mockTrophiesJson[0]);
+
+      expect(trophy.id, mockTrophies[0].id);
+      expect(trophy.name, mockTrophies[0].name);
+      expect(trophy.type, mockTrophies[0].type);
+      expect(trophy.detail, mockTrophies[0].detail);
+      expect(trophy.iconUrl, mockTrophies[0].iconUrl);
+      expect(trophy.isEarned, mockTrophies[0].isEarned);
+      expect(trophy.isHidden, mockTrophies[0].isHidden);
+      expect(trophy.earnedDate, mockTrophies[0].earnedDate);
     });
   });
 }

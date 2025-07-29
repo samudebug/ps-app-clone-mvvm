@@ -1,6 +1,7 @@
 import 'package:ps_app_clone_mvvm/data/repositories/games/games_repository.dart';
 import 'package:ps_app_clone_mvvm/data/services/api/api_service.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/game.dart';
+import 'package:ps_app_clone_mvvm/domain/models/games/trophy.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/trophy_group.dart';
 import 'package:ps_app_clone_mvvm/utils/result.dart';
 
@@ -27,12 +28,34 @@ extension TrophyGroupRemote on TrophyGroup {
       iconUrl: json['icon_url'],
       trophyCountInfo: (json['trophy_count_info'] as Map<String, dynamic>)
           .entries
-          .map((entry) => TrophyCountInfo(
-                type: entry.key,
-                total: entry.value['total'],
-                earned: entry.value['earned'],
-              ))
+          .map(
+            (entry) => TrophyCountInfo(
+              type: entry.key,
+              total: entry.value['total'],
+              earned: entry.value['earned'],
+            ),
+          )
           .toList(),
+    );
+  }
+}
+
+extension TrophyRemote on Trophy {
+  static Trophy fromJson(Map<String, dynamic> json) {
+    return Trophy(
+      id: json['id'],
+      type: TrophyType.values.firstWhere(
+        (type) => type.toString() == 'TrophyType.${json['type']}',
+        orElse: () => TrophyType.bronze,
+      ),
+      name: json['name'],
+      detail: json['detail'],
+      iconUrl: json['icon_url'],
+      isEarned: json['earned'],
+      isHidden: json['hidden'],
+      earnedDate: json['earned_date'] != null
+          ? DateTime.parse(json['earned_date'])
+          : null,
     );
   }
 }
@@ -48,7 +71,6 @@ class GamesRepositoryRemote implements GamesRepository {
           .map((gameJson) => GameRemote.fromJson(gameJson))
           .toList();
       return Result.ok(games);
-      
     } catch (e) {
       return Result.error(e);
     }
@@ -62,6 +84,24 @@ class GamesRepositoryRemote implements GamesRepository {
           .map((groupJson) => TrophyGroupRemote.fromJson(groupJson))
           .toList();
       return Result.ok(trophyGroups);
+    } catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<Trophy>>> getTrophies(
+    String gameId,
+    String trophyGroupId,
+  ) async {
+    try {
+      final response = await apiClient.get(
+        '/games/$gameId/trophy_groups/$trophyGroupId/trophies',
+      );
+      final trophies = (response as List)
+          .map((trophyJson) => TrophyRemote.fromJson(trophyJson))
+          .toList();
+      return Result.ok(trophies);
     } catch (e) {
       return Result.error(e);
     }

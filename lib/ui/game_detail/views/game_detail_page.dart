@@ -92,7 +92,9 @@ class _GameDetailPageState extends State<GameDetailPage> {
                             Routes.trophy_group_details(
                               widget.game.id,
                               trophyGroup.id,
+                              
                             ),
+                            extra: trophyGroup,
                           );
                         },
                       );

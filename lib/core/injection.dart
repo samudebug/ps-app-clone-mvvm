@@ -7,6 +7,7 @@ import 'package:ps_app_clone_mvvm/data/repositories/profile/profile_repository.d
 import 'package:ps_app_clone_mvvm/data/repositories/profile/profile_repository_remote.dart';
 import 'package:ps_app_clone_mvvm/data/services/api/api_service.dart';
 import 'package:ps_app_clone_mvvm/domain/use_cases/games/get_games_use_case.dart';
+import 'package:ps_app_clone_mvvm/domain/use_cases/games/get_trophies_use_case.dart';
 import 'package:ps_app_clone_mvvm/domain/use_cases/games/get_trophy_groups_use_case.dart';
 import 'package:ps_app_clone_mvvm/domain/use_cases/profile/get_profile_use_case.dart';
 import 'package:ps_app_clone_mvvm/domain/use_cases/profile/get_trophy_summary_use_case.dart';
@@ -30,6 +31,7 @@ void setupUseCases() {
   getIt.registerSingleton(GetTrophySummaryUseCase(profileRepository: getIt<ProfileRepository>()));
   getIt.registerSingleton(GetGamesUseCase(gamesRepository: getIt<GamesRepository>()));
   getIt.registerSingleton(GetTrophyGroupsUseCase(gamesRepository: getIt<GamesRepository>()));
+  getIt.registerSingleton(GetTrophiesUseCase(gamesRepository: getIt<GamesRepository>()));
 }
 
 void setupInjection() {
