@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:ps_app_clone_mvvm/core/injection.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/game.dart';
+import 'package:ps_app_clone_mvvm/domain/use_cases/games/get_games_use_case.dart';
+import 'package:ps_app_clone_mvvm/domain/use_cases/profile/get_profile_use_case.dart';
 import 'package:ps_app_clone_mvvm/routing/routes.dart';
 import 'package:ps_app_clone_mvvm/ui/core/ui/error_indicator.dart';
 import 'package:ps_app_clone_mvvm/ui/games/view_models/games_view_model.dart';
@@ -8,14 +11,24 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:go_router/go_router.dart';
 
 class GamesPage extends StatefulWidget {
-  const GamesPage({super.key, required this.viewModel});
-  final GamesViewModel viewModel;
+  const GamesPage({super.key});
 
   @override
   State<GamesPage> createState() => _GamesPageState();
 }
 
 class _GamesPageState extends State<GamesPage> {
+  late GamesViewModel viewModel;
+  
+  @override
+  void initState() {
+    super.initState();
+    viewModel = GamesViewModel(
+      getProfileUseCase: getIt<GetProfileUseCase>(),
+      getGamesUseCase: getIt<GetGamesUseCase>(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,9 +36,9 @@ class _GamesPageState extends State<GamesPage> {
         child: CustomScrollView(
           slivers: [
             ListenableBuilder(
-              listenable: widget.viewModel.getProfileCommand,
+              listenable: viewModel.getProfileCommand,
               builder: (context, child) {
-                if (widget.viewModel.getProfileCommand.running) {
+                if (viewModel.getProfileCommand.running) {
                   return SliverSkeletonizer(
                     child: SliverAppBar(
                       title: Row(
@@ -51,7 +64,7 @@ class _GamesPageState extends State<GamesPage> {
                     ),
                   );
                 }
-                if (widget.viewModel.getProfileCommand.error) {
+                if (viewModel.getProfileCommand.error) {
                   return SliverAppBar(
                     title: Text(
                       'Error loading profile',
@@ -65,7 +78,7 @@ class _GamesPageState extends State<GamesPage> {
                   title: GestureDetector(
                     onTap: () => context.push(
                       Routes.profile,
-                      extra: widget.viewModel.profile,
+                      extra: viewModel.profile,
                     ),
                     child: Row(
                       spacing: 8,
@@ -74,7 +87,7 @@ class _GamesPageState extends State<GamesPage> {
                           radius: 20,
                           child: ClipOval(
                             child: Image.network(
-                              widget.viewModel.profile?.avatarUrl ??
+                              viewModel.profile?.avatarUrl ??
                                   'http://static-resource.np.community.playstation.net/avatar/WWS_A/A2002_l.png',
                               fit: BoxFit.cover,
                               width: 50,
@@ -83,7 +96,7 @@ class _GamesPageState extends State<GamesPage> {
                           ),
                         ),
                         Text(
-                          widget.viewModel.profile?.fullName ??
+                          viewModel.profile?.fullName ??
                               'Samuel Martins',
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
@@ -106,9 +119,9 @@ class _GamesPageState extends State<GamesPage> {
               pinned: true,
             ),
             ListenableBuilder(
-              listenable: widget.viewModel.getGamesCommand,
+              listenable: viewModel.getGamesCommand,
               builder: (context, child) {
-                if (widget.viewModel.getGamesCommand.running) {
+                if (viewModel.getGamesCommand.running) {
                   return SliverSkeletonizer(
                     child: SliverList.list(
                       children: List.generate(
@@ -129,19 +142,19 @@ class _GamesPageState extends State<GamesPage> {
                     ),
                   );
                 }
-                if (widget.viewModel.getGamesCommand.error) {
+                if (viewModel.getGamesCommand.error) {
                   return ErrorIndicator(
                     title: 'Failed to load games',
                     label: 'Retry',
                     onPressed: () {
-                      widget.viewModel.getGamesCommand.execute();
+                      viewModel.getGamesCommand.execute();
                     },
                   );
                 }
                 return SliverList.builder(
-                  itemCount: widget.viewModel.games.length,
+                  itemCount: viewModel.games.length,
                   itemBuilder: (context, index) {
-                    final game = widget.viewModel.games[index];
+                    final game = viewModel.games[index];
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: InkWell(

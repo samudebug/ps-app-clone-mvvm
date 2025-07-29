@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ps_app_clone_mvvm/core/injection.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/game.dart';
+import 'package:ps_app_clone_mvvm/domain/use_cases/games/get_trophy_groups_use_case.dart';
 import 'package:ps_app_clone_mvvm/routing/routes.dart';
 import 'package:ps_app_clone_mvvm/ui/game_detail/view_models/game_detail_view_model.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -9,15 +11,26 @@ class GameDetailPage extends StatefulWidget {
   const GameDetailPage({
     super.key,
     required this.game,
-    required this.viewModel,
+    required this.gameId,
   });
   final Game game;
-  final GameDetailViewModel viewModel;
+  final String gameId;
   @override
   State<GameDetailPage> createState() => _GameDetailPageState();
 }
 
 class _GameDetailPageState extends State<GameDetailPage> {
+  late GameDetailViewModel viewModel;
+  
+  @override
+  void initState() {
+    super.initState();
+    viewModel = GameDetailViewModel(
+      gameId: widget.gameId,
+      getTrophyGroupsUseCase: getIt<GetTrophyGroupsUseCase>(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,9 +65,9 @@ class _GameDetailPageState extends State<GameDetailPage> {
             ),
             Expanded(
               child: ListenableBuilder(
-                listenable: widget.viewModel.getTrophyGroupsCommand,
+                listenable: viewModel.getTrophyGroupsCommand,
                 builder: (context, child) {
-                  if (widget.viewModel.getTrophyGroupsCommand.running) {
+                  if (viewModel.getTrophyGroupsCommand.running) {
                     return Skeletonizer(child: ListView(
                       children: [
                         ListTile(
@@ -74,9 +87,9 @@ class _GameDetailPageState extends State<GameDetailPage> {
                     ));
                   }
                   return ListView.builder(
-                    itemCount: widget.viewModel.trophyGroups.length,
+                    itemCount: viewModel.trophyGroups.length,
                     itemBuilder: (context, index) {
-                      final trophyGroup = widget.viewModel.trophyGroups[index];
+                      final trophyGroup = viewModel.trophyGroups[index];
                       return ListTile(
                         leading: ClipRRect(
                           borderRadius: BorderRadius.circular(8),

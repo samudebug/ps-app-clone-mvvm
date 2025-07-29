@@ -3,15 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/game.dart';
 import 'package:ps_app_clone_mvvm/domain/models/games/trophy_group.dart';
 import 'package:ps_app_clone_mvvm/domain/models/profile/profile.dart';
-import 'package:ps_app_clone_mvvm/domain/use_cases/games/get_games_use_case.dart';
 import 'package:ps_app_clone_mvvm/domain/use_cases/games/get_trophies_use_case.dart';
-import 'package:ps_app_clone_mvvm/domain/use_cases/games/get_trophy_groups_use_case.dart';
 import 'package:ps_app_clone_mvvm/domain/use_cases/profile/get_profile_use_case.dart';
 import 'package:ps_app_clone_mvvm/domain/use_cases/profile/get_trophy_summary_use_case.dart';
 import 'package:ps_app_clone_mvvm/routing/routes.dart';
-import 'package:ps_app_clone_mvvm/ui/game_detail/view_models/game_detail_view_model.dart';
 import 'package:ps_app_clone_mvvm/ui/game_detail/views/game_detail_page.dart';
-import 'package:ps_app_clone_mvvm/ui/games/view_models/games_view_model.dart';
 import 'package:ps_app_clone_mvvm/ui/games/views/games_page.dart';
 import 'package:ps_app_clone_mvvm/ui/profile/view_models/profile_viewmodel.dart';
 import 'package:ps_app_clone_mvvm/ui/profile/views/profile_screen.dart';
@@ -55,10 +51,7 @@ GoRouter router() => GoRouter(
       path: Routes.games,
       builder: (context, state) {
         return GamesPage(
-          viewModel: GamesViewModel(
-            getProfileUseCase: getIt<GetProfileUseCase>(),
-            getGamesUseCase: getIt<GetGamesUseCase>(),
-          ),
+
         );
       },
       routes: [
@@ -81,10 +74,7 @@ GoRouter router() => GoRouter(
                   },
               child: GameDetailPage(
                 game: game,
-                viewModel: GameDetailViewModel(
-                  gameId: gameId,
-                  getTrophyGroupsUseCase: getIt<GetTrophyGroupsUseCase>(),
-                ),
+                gameId: gameId,
               ),
             );
           },
